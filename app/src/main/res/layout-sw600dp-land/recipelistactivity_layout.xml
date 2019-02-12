@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:tag="sw600dp"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.dwbi.bakingapp.ui.RecipeListActivity">
+
+
+
+
+
+    <include
+        layout="@layout/app_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/recyclerview_recipelist"
+            android:name="com.dwbi.masterdetail.ItemListFragment"
+
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="@dimen/recyclerview_marginleft"
+            android:layout_marginRight="@dimen/recyclerview_marginrigth"
+            tools:context="com.dwbi.bakingapp.com.dwbi.bakingapp.ui.RecipeListActivity"
+            tools:listitem="@layout/item_list_content"
+            />
+
+    </FrameLayout>
+
+
+
+</LinearLayout>
