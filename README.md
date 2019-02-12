@@ -17,3 +17,4 @@ Images Credit
 * Placeholder Images [Pexels](https://www.pexels.com/)
 * App Icon           [Icons8](https://icons8.com)
 
+<img src="https://raw.githubusercontent.com/sapsztor/BakingApp/master/img/BakingApp_sc1.jpg" width="200"/>
