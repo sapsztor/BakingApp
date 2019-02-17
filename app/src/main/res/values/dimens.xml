@@ -17,6 +17,8 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="card_recipename_textsize">24sp</dimen>
     <dimen name="exo_player_width">400dp</dimen>
     <dimen name="exo_player_height">265dp</dimen>
-    <dimen name="exo_player_width3">12</dimen>
+    <dimen name="exo_player_drop_width">400</dimen>
+    <dimen name="exo_player_drop_height">265</dimen>
+
 
 </resources>

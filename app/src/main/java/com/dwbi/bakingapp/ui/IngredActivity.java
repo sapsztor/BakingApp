@@ -1,18 +1,20 @@
 package com.dwbi.bakingapp.ui;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.dwbi.bakingapp.adapter.StepsAdapter;
 import com.dwbi.bakingapp.model.Ingredient;
 import com.dwbi.bakingapp.model.Recipe;
 import com.dwbi.bakingapp.R;
+import com.dwbi.bakingapp.model.Step;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * An activity representing a single Item detail screen. This
@@ -21,129 +23,194 @@ import java.util.List;
  * in a {@link RecipeListActivity}.
  */
 //public class IngredActivity extends AppCompatActivity implements IngredFragment.OnStepSelectedListener {
- public class IngredActivity extends AppCompatActivity  {
+ public class IngredActivity extends AppCompatActivity implements StepsAdapter.onClickListener {
 
-    private static final String TAG = "PSX";
-    Bundle argument;
+    private static final String TAG = "INGREDACT";
+    static String BACKSTACK_INGRED_FRAG = "BACKSTACK_INGRED_FRAG";
+    static String BACKSTACK_VIDEO_FRAG = "BACKSTACK_VIDEO_FRAG";
+
+
+
+    Bundle mArgument;
     private Recipe mRecipe;
+    private String mRecipeName;
+    private ArrayList<Ingredient> mIngredients = new ArrayList<>();
+    private ArrayList<Step> mSteps = new ArrayList<>();
+    private int mSelectedStep = 0;
+
 
     String mLayout_Config;
     Boolean mTwoPane;
 
-    private Fragment mIngred = null;
-    private Fragment mVideo = null;
-
+    final IngredFragment mIngredFragment = new IngredFragment();
+    final StepVideoFragment mVideoFragment = new StepVideoFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
-
         setContentView(R.layout.ingred_activity_container_layout);
+
+        mTwoPane = isTwoPane();
+
+
+        if (savedInstanceState == null) {
+            if (this.getIntent().getExtras() != null && this.getIntent().getExtras().containsKey(RecipeListActivity.ARG_BUNDLE) ){
+                Log.d(TAG, "2 IngredActivity ");
+                mArgument = this.getIntent().getBundleExtra(RecipeListActivity.ARG_BUNDLE);
+                mRecipe = mArgument.getParcelable(RecipeListActivity.ARG_RECIPE);
+                mIngredients = mRecipe.getIngredients();
+                mSteps = mRecipe.getSteps();
+                mRecipeName = mRecipe.getName();
+
+            }
+
+
+            final IngredFragment ingredFragment = new IngredFragment();
+            ingredFragment.setArguments(mArgument);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.item_detail_container, ingredFragment, "ingredFragment")
+                    .addToBackStack(BACKSTACK_INGRED_FRAG)
+                    .commit();
+
+
+            if (mTwoPane){
+                StepVideoFragment videoFragment = new StepVideoFragment();
+                videoFragment.setArguments(mArgument);
+
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.video_view_container, videoFragment, "videoFragment")
+                        .addToBackStack(BACKSTACK_VIDEO_FRAG)
+                        .commit();
+
+
+            }
+        } else {
+            mRecipe = savedInstanceState.getParcelable(RecipeListActivity.ARG_RECIPE);
+            mRecipeName = savedInstanceState.getString(RecipeListActivity.ARG_RECIPE_NAME);
+            mSelectedStep = savedInstanceState.getInt(RecipeListActivity.ARG_SELECTED_STEP);
+
+            mIngredients = mRecipe.getIngredients();
+            mSteps = mRecipe.getSteps();
+
+            mArgument = new Bundle();
+            mArgument.putParcelable(RecipeListActivity.ARG_RECIPE, mRecipe);
+            mArgument.putInt(RecipeListActivity.ARG_SELECTED_STEP, mSelectedStep);
+
+            startFragment(mArgument);
+
+        }
+        ///https://www.programcreek.com/java-api-examples/?class=android.support.v7.widget.Toolbar&method=setNavigationOnClickListener
+        Log.d(TAG, "10 IngredActivity mRecipeName->  " + mRecipeName);
 
 
         Toolbar toolbar = findViewById(R.id.app_toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeButtonEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
 
 
-        // Show the Up button in the action bar.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
-        }
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                if(findViewById(R.id.video_view_container) == null) {
+                    if (fragmentManager.getBackStackEntryCount() > 1){
+                        fragmentManager.popBackStack(BACKSTACK_INGRED_FRAG, 0);
+                    } else {
+                        if (fragmentManager.getBackStackEntryCount() > 0 ) {
+                            finish();
+                        }
+                    }
+                } else {
+                    finish();
+                }
+            }
+        });
 
 
+    }
+
+    //----------------------------------------------------------------------------------------------
+    private boolean isTwoPane(){
+        boolean twoPane;
         mLayout_Config  = getResources().getString(R.string.layout_config);
         switch (mLayout_Config) {
             case "portrait":
-                mTwoPane = false;
-                Log.d(TAG, "IngredActivity-> " + mLayout_Config);
+                twoPane = false;
                 break;
             case "landscape" :
-                mTwoPane = false;
-                Log.d(TAG, "IngredActivity-> " + mLayout_Config);
+                twoPane = false;
                 break;
             case "tablet_landscape":
-                mTwoPane = true;
-                Log.d(TAG, "IngredActivity-> " + mLayout_Config);
+                twoPane = true;
+                break;
+            case "tablet_portrait":
+                twoPane = true;
                 break;
             default:
-                Log.d(TAG, "IngredActivity-> " + mLayout_Config);
+                twoPane = false;
         }
+        return twoPane;
+    }
+    //----------------------------------------------------------------------------------------------
 
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
-        if (savedInstanceState == null) {
-            // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
+    @Override
+    public void onResume(){
+        super.onResume();
+        getSupportActionBar().setTitle(mRecipeName);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    void startFragment(Bundle arg) {
 
 
-            if (this.getIntent().getExtras() != null && this.getIntent().getExtras().containsKey(IngredFragment.ARG_ITEM_ID) ){
-                //Bundle bundle = this.getIntent().getBundleExtra("recipe");
-                argument = this.getIntent().getBundleExtra("recipe");
-                mRecipe = argument.getParcelable(IngredFragment.ARG_ITEM_ID);
-
-                getSupportActionBar().setTitle(mRecipe.getName());
-                List<Ingredient> ingredients = mRecipe.getIngredients();
-
-            } else {
-                finish();
-            }
-
-        } else {
-            mRecipe = savedInstanceState.getParcelable("RECIPE");
-
-            getSupportActionBar().setTitle(savedInstanceState.getString("RECIPENAME"));
-            List<Ingredient> ingredients = mRecipe.getIngredients();
-
-            argument = new Bundle();
-            argument.putParcelable(IngredFragment.ARG_ITEM_ID, mRecipe);
-
-        }
-
-        if (mTwoPane){
-
-            IngredFragment ingredFragment = new IngredFragment();
-            ingredFragment.setArguments(argument);
-            //fragment.setOnStepSelectedListener(this);
+        if (isTwoPane()){
+            mIngredFragment.setArguments(arg);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.item_detail_container, ingredFragment)
-                    //.addToBackStack(null)
+                    .replace(R.id.item_detail_container,  mIngredFragment, "ingredFragment")
+                    .addToBackStack(BACKSTACK_INGRED_FRAG)
                     .commit();
 
 
-            Bundle stepfragment_arg = new Bundle();
-            BlankFragment blankFragment = new BlankFragment();
+            mVideoFragment.setArguments(arg);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.video_view_container, blankFragment)
-                    //.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-                    //.addToBackStack(null)
+                    .replace(R.id.video_view_container, mVideoFragment, "videoFragment")
+                    .addToBackStack(BACKSTACK_VIDEO_FRAG)
                     .commit();
 
         } else {
-
-            IngredFragment ingredFragment = new IngredFragment();
-            ingredFragment.setArguments(argument);
-            //fragment.setOnStepSelectedListener(this);
+            mVideoFragment.setArguments(arg);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.item_detail_container, ingredFragment)
-                    //.addToBackStack(null)
+                    .replace(R.id.item_detail_container, mVideoFragment, "videoFragment")
+                    .addToBackStack(BACKSTACK_VIDEO_FRAG)
                     .commit();
-
         }
     }
-    
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void onItemClick(int selectedIndex) {
+
+        mSelectedStep = selectedIndex;
+
+        getSupportActionBar().setTitle(mRecipeName);
+
+        Bundle arg = new Bundle();
+        arg.putParcelable(RecipeListActivity.ARG_RECIPE, mRecipe);
+        arg.putInt(RecipeListActivity.ARG_SELECTED_STEP, mSelectedStep);
+
+        startFragment(arg);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -164,7 +231,26 @@ import java.util.List;
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("RECIPE", mRecipe);
-        outState.putString("RECIPENAME", mRecipe.getName());
+        outState.putParcelable(RecipeListActivity.ARG_RECIPE, mRecipe);
+        outState.putString(RecipeListActivity.ARG_RECIPE_NAME, mRecipe.getName());
+        outState.putInt(RecipeListActivity.ARG_SELECTED_STEP, mSelectedStep);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if(findViewById(R.id.video_view_container) == null) {
+            if (fragmentManager.getBackStackEntryCount() > 1){
+                fragmentManager.popBackStack(BACKSTACK_INGRED_FRAG, 0);
+            } else {
+                if (fragmentManager.getBackStackEntryCount() > 0 ) {
+                    finish();
+                }
+            }
+        } else {
+            finish();
+        }
+        //super.onBackPressed();  // optional depending on your needs
     }
 }

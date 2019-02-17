@@ -9,14 +9,14 @@ public class Recipe implements Parcelable {
     
     private Integer id;
     private String name;
-    private List<Ingredient> ingredients = null;
-    private List<Step> steps = null;
+    private ArrayList<Ingredient> ingredients = null;
+    private ArrayList<Step> steps = null;
     private String servings;
     private String image;
     
     public String getName() { return name;}
-    public List<Ingredient> getIngredients() {return ingredients;}
-    public List<Step> getSteps() {return steps;}
+    public ArrayList<Ingredient> getIngredients() {return ingredients;}
+    public ArrayList<Step> getSteps() {return steps;}
     public String getServings() { return servings;}
     public String getImage() { return image;}
     

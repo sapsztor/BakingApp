@@ -29,7 +29,7 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Vi
     final private onClickListener onClickListener;
 
     public interface onClickListener {
-        void onItemClick(Recipe recipe);
+        void onItemClick(int selectedIndex);
     }
 
     Context mContext;
@@ -103,13 +103,12 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Vi
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            Log.d(TAG, "onClick position -> " + position);
-            Recipe recipe = mRecipes.get(position);
 
+            Recipe recipe = mRecipes.get(position);
 
             updateWidget(v.getContext(), recipe);
 
-            onClickListener.onItemClick(recipe);
+            onClickListener.onItemClick(position);
 
         }
 

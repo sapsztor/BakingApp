@@ -57,7 +57,7 @@ public class UITests {
 
     @Test
     public void checkExoIsVisible() {
-        onView(withId(R.id.recyclerview_recipelist)).perform(RecyclerViewActions.actionOnItemAtPosition(3,click()));
+        onView(withId(R.id.recyclerview_recipelist)).perform(RecyclerViewActions.actionOnItemAtPosition(0,click()));
         onView(withId(R.id.rv_recipe_steps)).perform(RecyclerViewActions.actionOnItemAtPosition(0,click()));
         onView(withId(R.id.exoView)).check(matches(isDisplayed()));
     }

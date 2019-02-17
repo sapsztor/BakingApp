@@ -1,6 +1,7 @@
 package com.dwbi.bakingapp.ui;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,23 +29,17 @@ import java.util.List;
  */
 public class IngredFragment extends Fragment {
     /**
-     * The fragment argument representing the item ID that this fragment
+     * The fragment mArgument representing the item ID that this fragment
      * represents.
      */
 
-    public static final String ARG_ITEM_ID = "recipe";
+    //public static final String ARG_RECIPE = "recipe";
 
     private static final String TAG = "PSX";
 
 
-    private String mItem;
     private Recipe mRecipe;
-    TextView mIngredients;
     private RecyclerView rvSteps;
-
-    String mLayout_Config;
-    Boolean mTwoPane;
-
 
 
     /**
@@ -71,7 +66,9 @@ public class IngredFragment extends Fragment {
             default:
                 istwopane = false;
         }
+        Log.d(TAG, "IngredFragment-> layout_config-> " + layout_config);
         return istwopane;
+
     }
 
 
@@ -87,24 +84,23 @@ public class IngredFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
 
-        //mItem = getActivity().getIntent().getExtras().getString(IngredFragment.ARG_ITEM_ID);
-        if (getArguments() != null && getArguments().containsKey(IngredFragment.ARG_ITEM_ID)) {
-            //mItem = getArguments().getString(IngredFragment.ARG_ITEM_ID);
-            mRecipe = getArguments().getParcelable(IngredFragment.ARG_ITEM_ID);
+        if(savedInstanceState != null ) {
+            mRecipe = savedInstanceState.getParcelable(RecipeListActivity.ARG_RECIPE);
+        } else {
+            if (getArguments() != null && getArguments().containsKey(RecipeListActivity.ARG_RECIPE)) {
+                Bundle argument = getArguments();
+                mRecipe = argument.getParcelable(RecipeListActivity.ARG_RECIPE);
+            }
         }
 
+
         if (mRecipe != null) {
-
-            //dumpRecipe(mRecipe);
-
             // ingredients
-            List<Ingredient> ingreds = mRecipe.getIngredients();
+            ArrayList<Ingredient> ingreds = mRecipe.getIngredients();
 
             String ingredtext = "";
             for(Ingredient i : ingreds) {
-                //ingredtext.concat(i.getIngredient() + " " + i.getQuantity() + " " + i.getMeasure()+ "\n");
                 ingredtext = ingredtext + " &#8226 " + i.getIngredient() + " <b>" + i.getQuantity() + " " + i.getMeasure()+ "</b><br>";
-                //ingredtext = ingredtext + "&#9830  " + i.getIngredient() + " <b>" + i.getQuantity() + " " + i.getMeasure()+ "</b><br>";
             }
 
             ((TextView) rootView.findViewById(R.id.tvIngredients)).setText(Html.fromHtml(ingredtext));
@@ -115,24 +111,12 @@ public class IngredFragment extends Fragment {
             rvSteps.setAdapter(new StepsAdapter( steps, (IngredActivity) getActivity(), checkTwoPane()));
         }
 
-
         return rootView;
     }
 
-    //----------------------------------------------------------------------------------------------
-    public void dumpRecipe(Recipe recipe) {
-        Log.d(TAG, "-------------------------------------------------");
-        Log.d(TAG, "Recipe-> " + recipe.getName());
-        Log.d(TAG, "Image-> " + recipe.getImage());
-        Log.d(TAG, "Servings-> " + recipe.getServings());
-        for(Ingredient i: recipe.getIngredients()){
-            Log.d(TAG, "\tIngredient \t" + i.getIngredient() + " : " + i.getQuantity()  + ", " + i.getMeasure());
-        }
-        for(Step s: recipe.getSteps()){
-            Log.d(TAG, "\tStep \t" + s.getId() + " : " + s.getShortDescription() + " : " + s.getThumbnailURL()  + ", " + s.getVideoURL());
-        }
-        Log.d(TAG, "-------------------------------------------------");
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(RecipeListActivity.ARG_RECIPE, mRecipe);
     }
-    //----------------------------------------------------------------------------------------------
-
 }

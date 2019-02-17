@@ -80,7 +80,7 @@ class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public void onDataSetChanged() {
-        Log.d(TAG, "GridWidgetService.GridRemoteViewsFactory.onDataSetChanged");
+        //Log.d(TAG, "GridWidgetService.GridRemoteViewsFactory.onDataSetChanged");
         mRecipe = BakingAppWidgetProvider.mRecipe;
         mIngredList = mRecipe.getIngredients();
 

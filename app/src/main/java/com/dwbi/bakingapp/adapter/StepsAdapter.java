@@ -27,10 +27,16 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.ViewHolder> 
 
     private final boolean mTwoPane;
 
+    final private onClickListener onClickListener;
+
+    public interface onClickListener {
+        void onItemClick(int selectedIndex);
+    }
 
     public StepsAdapter(ArrayList<Step> items, IngredActivity parent, boolean twoPane) {
         mSteps = items;
         mParent = parent;
+        onClickListener = parent;
         mTwoPane = twoPane;
     }
 
@@ -50,6 +56,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
+
         return  mSteps.size();
     }
 
@@ -71,34 +78,37 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.ViewHolder> 
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            Step step = mSteps.get(position);
-            Bundle arg = new Bundle();
 
-            //arg.putParcelable(StepVideoFragment.ARG_ITEM_ID, mSteps);
-            arg.putParcelableArrayList(StepVideoFragment.ARG_ITEM_ID, mSteps);
-            arg.putInt(StepVideoFragment.ARG_SELECTED_STEP, position);
-            arg.putString(StepVideoFragment.ARG_RECIPE_NAME, "Sajat recept");
+            onClickListener.onItemClick(position);
 
-            StepVideoFragment videoFragment = new StepVideoFragment();
-            videoFragment.setArguments(arg);
-
-
-            if(mTwoPane) {
-
-                mParent.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.video_view_container, videoFragment)
-                        //.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-                        //.addToBackStack(null)
-                        .commit();
-
-            } else {
-
-                mParent.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.item_detail_container, videoFragment)
-                        //.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-                        .addToBackStack(null)
-                        .commit();
-            }
+//            Step step = mSteps.get(position);
+//            Bundle arg = new Bundle();
+//
+//            //arg.putParcelable(StepVideoFragment.ARG_RECIPE, mSteps);
+//            arg.putParcelableArrayList(StepVideoFragment.ARG_RECIPE, mSteps);
+//            arg.putInt(StepVideoFragment.ARG_SELECTED_STEP, position);
+//            arg.putString(StepVideoFragment.ARG_RECIPE_NAME, "Sajat recept");
+//
+//            StepVideoFragment videoFragment = new StepVideoFragment();
+//            videoFragment.setArguments(arg);
+//
+//
+//            if(mTwoPane) {
+//
+//                mParent.getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.video_view_container, videoFragment)
+//                        //.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+//                        //.addToBackStack(null)
+//                        .commit();
+//
+//            } else {
+//
+//                mParent.getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.item_detail_container, videoFragment)
+//                        //.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+//                        .addToBackStack(null)
+//                        .commit();
+//            }
         }
     }
     //------------------------------------------------------------------------------------------

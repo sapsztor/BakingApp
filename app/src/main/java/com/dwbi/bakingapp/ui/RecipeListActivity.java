@@ -14,11 +14,9 @@ import android.util.Log;
 
 
 import com.dwbi.bakingapp.IdlingResource.SimpleIdlingResource;
-import com.dwbi.bakingapp.model.Ingredient;
 import com.dwbi.bakingapp.model.Recipe;
 import com.dwbi.bakingapp.R;
 import com.dwbi.bakingapp.adapter.RecipeListAdapter;
-import com.dwbi.bakingapp.model.Step;
 import com.dwbi.bakingapp.network.RecipeAPI;
 import com.dwbi.bakingapp.network.RecipeService;
 
@@ -28,16 +26,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * An activity representing a list of Items. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link IngredActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- */
 public class RecipeListActivity extends AppCompatActivity implements RecipeListAdapter.onClickListener {
 
+    public static final String ARG_RECIPE = "recipe";
+    public static final String ARG_RECIPE_NAME = "recipename";
+    public static final String ARG_BUNDLE = "bundle";
+    public static final String ARG_STEPS = "steps";
+    public static final String ARG_SELECTED_STEP = "selected_step";
 
     private SimpleIdlingResource mIdlingResource;
     @VisibleForTesting
@@ -55,16 +50,15 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListA
      */
     private static final String TAG = "PSX";
     private boolean mTwoPane;
-    
+
+
     RecipeAPI client;
-    ArrayList<Recipe> mData = new ArrayList<>();
+    ArrayList<Recipe> mRecipeList = new ArrayList<>();
     String mLayout_Config;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
 
         setContentView(R.layout.recipelistactivity_layout);
         Toolbar toolbar = findViewById(R.id.app_toolbar);
@@ -73,21 +67,17 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListA
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle("Udacity Baking App");
 
-
-
         mLayout_Config  = getResources().getString(R.string.layout_config);
-
-
-
 
         RecyclerView recyclerView = findViewById(R.id.recyclerview_recipelist);
         assert recyclerView != null;
 
 
+
+        // from getRecipes fills the recyclerview
         getRecipes(recyclerView);
+
         getIdlingResource();
-
-
     }
 
 
@@ -111,7 +101,7 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListA
             default:
                     recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         }
-        recyclerView.setAdapter(new RecipeListAdapter(this, mData, mTwoPane));
+        recyclerView.setAdapter(new RecipeListAdapter(this, mRecipeList, mTwoPane));
     }
 
     //----------------------------------------------------------------------------------------------
@@ -124,20 +114,33 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListA
         if(client == null){
             client = RecipeService.createRecipeService(RecipeAPI.class);
         }
+
+        Log.d(TAG, "RecipeListActivity-> client.getRecipes();");
+
         Call<ArrayList<Recipe>> call = client.getRecipes();
+
+
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(false);
+        }
 
         call.enqueue(new Callback<ArrayList<Recipe>>() {
             @Override
             public void onResponse(Call<ArrayList<Recipe>> call, Response<ArrayList<Recipe>> response) {
                 ArrayList<Recipe> result = response.body();
 
-                mData = result;
+                mRecipeList = result;
                 setupRecyclerView(recyclerView);
+
+                if (mIdlingResource != null) {
+                    mIdlingResource.setIdleState(true);
+                }
+
             }
     
             @Override
             public void onFailure(Call<ArrayList<Recipe>> call, Throwable t) {
-                mData = new ArrayList<>();
+                mRecipeList = new ArrayList<>();
             }
         });
 
@@ -145,30 +148,16 @@ public class RecipeListActivity extends AppCompatActivity implements RecipeListA
     //----------------------------------------------------------------------------------------------
 
     @Override
-    public void onItemClick(Recipe recipe) {
-        if(mTwoPane) {
-
-            Log.d(TAG, "Detail fragment inditas");
-            Bundle arg = new Bundle();
-            arg.putParcelable(IngredFragment.ARG_ITEM_ID, recipe);
-
-            Context context = this;
-            Intent intent = new Intent(context, IngredActivity.class);
-            intent.putExtra("recipe", arg);
-            context.startActivity(intent);
-
-
-        } else {
-            Log.d(TAG, "Detail activity inditas");
-            Bundle arg = new Bundle();
-            arg.putParcelable(IngredFragment.ARG_ITEM_ID, recipe);
-
-            Context context = this;
-            Intent intent = new Intent(context, IngredActivity.class);
-            intent.putExtra("recipe", arg);
-            context.startActivity(intent);
-        }
+    public void onItemClick(int selectedIndex) {
+        Bundle arg = new Bundle();
+        arg.putParcelable(RecipeListActivity.ARG_RECIPE, mRecipeList.get(selectedIndex));
+        Context context = this;
+        Intent intent = new Intent(context, IngredActivity.class);
+        intent.putExtra(RecipeListActivity.ARG_BUNDLE, arg);
+        context.startActivity(intent);
     }
     //----------------------------------------------------------------------------------------------
-    
+
+
+
 }

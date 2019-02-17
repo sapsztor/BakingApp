@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="exo_player_width">600dp</dimen>
-    <dimen name="exo_player_height">800dp</dimen>
+    <dimen name="exo_player_width">300dp</dimen>
+    <dimen name="exo_player_height">200dp</dimen>
+    <dimen name="exo_player_drop_width">300</dimen>
+    <dimen name="exo_player_drop_height">200</dimen>
 </resources>
